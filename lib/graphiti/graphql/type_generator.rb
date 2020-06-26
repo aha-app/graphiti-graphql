@@ -84,10 +84,10 @@ module Graphiti
             BatchLoader::EntrypointLoader
           else
             if is_single
-              if sideload.type == :polymorphic_belongs_to
-                BatchLoader::PolymorphicSingleItemLoader
-              else
-                BatchLoader::SingleItemLoader
+              case sideload.type
+              when :polymorphic_belongs_to then BatchLoader::PolymorphicBelongsToLoader
+              when :belongs_to then BatchLoader::BelongsToLoader
+              else BatchLoader::SingleItemLoader
               end
             else
               BatchLoader::MultiItemLoader

@@ -1,5 +1,5 @@
 module Graphiti::GraphQL::BatchLoader
-  class PolymorphicSingleItemLoader < BaseLoader
+  class PolymorphicBelongsToLoader < BaseLoader
     def assign(parent_records, records)
       map = records.reduce({}) do |acc, (polymorphic_type, records)|
         acc[polymorphic_type] = records.group_by(&sideload.foreign_key)
