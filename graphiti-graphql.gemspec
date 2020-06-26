@@ -39,4 +39,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "graphiti_spec_helpers"
   spec.add_development_dependency "byebug"
   spec.add_development_dependency "kaminari"
+  spec.add_development_dependency "database_cleaner-active_record"
 end

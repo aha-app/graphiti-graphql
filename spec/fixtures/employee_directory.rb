@@ -113,6 +113,7 @@ class HomeOffice < ApplicationRecord
 end
 
 class Task < ApplicationRecord
+  belongs_to :employee
 end
 
 class Bug < Task
@@ -176,6 +177,7 @@ class ApplicationResource < Graphiti::Resource
 end
 
 class ClassificationResource < ApplicationResource
+  attribute :description, :string
 end
 
 class TeamResource < ApplicationResource

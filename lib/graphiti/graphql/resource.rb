@@ -17,7 +17,7 @@ module Graphiti
         end
 
         def graphql_schema
-          return @graphql_schema if @graphql_schema && ::Rails.application.config.eager_load
+          return @graphql_schema if @graphql_schema
 
           resources = self.descendants.select { |resource| resource.try(:graphql_entry?) }
 
