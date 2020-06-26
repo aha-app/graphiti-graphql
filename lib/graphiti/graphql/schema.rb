@@ -75,6 +75,12 @@ module Graphiti
         end
       end
 
+      class << self
+        def scalar_type(type)
+          GRAPHQL_SCALAR_TYPE_MAP[type]
+        end
+      end
+
       private
 
       def type_generator
@@ -148,7 +154,7 @@ module Graphiti
                 resource.filters.each_pair do |att, filter_details|
                   filter_details[:operators].each do |operator|
                     filter_name = "#{att}_#{operator.first}".to_sym
-                    argument filter_name, TypeGenerator::GRAPHQL_SCALAR_TYPE_MAP[filter_details[:type]], required: false
+                    argument filter_name, Schema.scalar_type(filter_details[:type]), required: false
                   end
                 end
               end
@@ -164,31 +170,20 @@ module Graphiti
         @mutation_type ||= Class.new(::GraphQL::Schema::Object) do
           graphql_name "Mutation"
 
-          queries.each_pair do |query_field, details|
+          queries.each_pair do |name, details|
             next unless details[:singular]
 
             resource = details[:resource]
-            
-            create_mutation = MutationGenerator.create_mutation(
-              name: query_field,
-              type: generator[resource.type],
-              resource: resource
-            )
-            field "create_#{query_field}".to_sym, mutation: create_mutation
 
-            update_mutation = MutationGenerator.update_mutation(
-              name: query_field,
+            meta = {
+              name: name,
               type: generator[resource.type],
               resource: resource
-            )
-            field "update_#{query_field}".to_sym, mutation: update_mutation
+            }
 
-            destroy_mutation = MutationGenerator.destroy_mutation(
-              name: query_field,
-              type: generator[resource.type],
-              resource: resource
-            )
-            field "destroy_#{query_field}".to_sym, mutation: destroy_mutation
+            field "create_#{name}".to_sym, mutation: MutationGenerator.create_mutation(**meta)
+            field "update_#{name}".to_sym, mutation: MutationGenerator.update_mutation(**meta)
+            field "destroy_#{name}".to_sym, mutation: MutationGenerator.destroy_mutation(**meta)
           end
         end
       end

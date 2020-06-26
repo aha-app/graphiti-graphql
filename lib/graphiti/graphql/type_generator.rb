@@ -1,17 +1,6 @@
 module Graphiti
   module GraphQL
     class TypeGenerator
-      GRAPHQL_SCALAR_TYPE_MAP = {
-        string: ::GraphQL::Types::String,
-        integer_id: ::GraphQL::Types::ID,
-        integer: ::GraphQL::Types::Int,
-        float: ::GraphQL::Types::Float,
-        boolean: ::GraphQL::Types::Boolean,
-        datetime: ::GraphQL::Types::ISO8601DateTime,
-      }.freeze
-
-      ENTRY_STRUCT = Struct.new(:id).new(:entry)
-
       def initialize
         @type_map = {}
         @resource_map = {}
@@ -41,7 +30,7 @@ module Graphiti
           resource_class.all_attributes.each_pair do |att, details|
             if details[:readable]
               # TODO: null
-              field att, GRAPHQL_SCALAR_TYPE_MAP[details[:type]], null: false
+              field att, Schema.scalar_type(details[:type]), null: false
             end
           end
         end
@@ -168,11 +157,11 @@ module Graphiti
                 next if att == sideload.primary_key || att == sideload.foreign_key
 
                 # TODO: handle :hash
-                next unless TypeGenerator::GRAPHQL_SCALAR_TYPE_MAP.key?(details[:type])
+                next unless Schema.scalar_type(details[:type])
 
                 details[:operators].each do |operator|
                   filter_name = "#{att}_#{operator.first}".to_sym
-                  argument filter_name, TypeGenerator::GRAPHQL_SCALAR_TYPE_MAP[details[:type]], required: false
+                  argument filter_name, Schema.scalar_type(details[:type]), required: false
                 end
               end
             end
