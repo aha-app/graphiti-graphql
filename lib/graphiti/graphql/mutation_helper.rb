@@ -2,15 +2,11 @@ module Graphiti
   module GraphQL
     module MutationHelper
       def build_model(args)
-        attrs, relationships = jsonapi_params(args)
+        self.class.graphiti_resource.build(jsonapi_params(args))
+      end
 
-        self.class.graphiti_resource.build(
-          data: {
-            type: self.class.graphiti_resource.type,
-            attributes: attrs,
-            relationships: relationships
-          }
-        )
+      def find_model(args)
+        self.class.graphiti_resource.find(jsonapi_params(args))
       end
 
       def jsonapi_params(args)
@@ -29,7 +25,13 @@ module Graphiti
           acc
         end
 
-        [attrs, relationships]
+        {
+          data: {
+            type: self.class.graphiti_resource.type,
+            attributes: attrs,
+            relationships: relationships
+          }
+        }
       end
     end
   end

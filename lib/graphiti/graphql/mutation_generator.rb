@@ -21,7 +21,7 @@ module Graphiti
             graphql_name "Create#{name.to_s.classify}"
 
             resource.all_attributes.each_pair do |att, details|
-              next if %i[created_at updated_at].include?(att)
+              next if %i[id created_at updated_at].include?(att)
 
               argument att, GRAPHQL_SCALAR_TYPE_MAP[details[:type]], required: false
             end
@@ -34,6 +34,68 @@ module Graphiti
 
               if model.save
                 { self.class.graphiti_resource.type.to_s.singularize => model.data }
+              else
+                { errors: model.errors.to_h }
+              end
+            end
+          end
+          mutation.graphiti_resource = resource
+          mutation
+        end
+
+        def update_mutation(name:, type:, resource:)
+          mutation = Class.new(::GraphQL::Schema::Mutation) do
+            include Graphiti::GraphQL::MutationHelper
+
+            cattr_accessor :graphiti_resource
+
+            graphql_name "Update#{name.to_s.classify}"
+
+            argument :id, ::GraphQL::Types::ID, required: true
+
+            resource.all_attributes.each_pair do |att, details|
+              next if %i[id created_at updated_at].include?(att)
+
+              argument att, GRAPHQL_SCALAR_TYPE_MAP[details[:type]], required: false
+            end
+
+            field name, type, null: true
+            field :errors, ::GraphQL::Types::JSON, null: true
+
+            def resolve(**args)
+              model = find_model(args)
+
+              if model.update_attributes
+                { self.class.graphiti_resource.type.to_s.singularize => model.data }
+              else
+                { errors: model.errors.to_h }
+              end
+            end
+          end
+          mutation.graphiti_resource = resource
+          mutation
+        end
+
+        def destroy_mutation(name:, type:, resource:)
+          mutation = Class.new(::GraphQL::Schema::Mutation) do
+            include Graphiti::GraphQL::MutationHelper
+
+            cattr_accessor :graphiti_resource
+
+            graphql_name "Destroy#{name.to_s.classify}"
+
+            argument :id, ::GraphQL::Types::ID, required: true
+
+            field name, type, null: true
+            field :errors, ::GraphQL::Types::JSON, null: true
+
+            def resolve(**args)
+              model = find_model(args)
+              data = model.data
+
+              if model.destroy
+                model_name = self.class.graphiti_resource.type.to_s.singularize
+                { self.class.graphiti_resource.type.to_s.singularize => data }
               else
                 { errors: model.errors.to_h }
               end

@@ -168,12 +168,27 @@ module Graphiti
             next unless details[:singular]
 
             resource = details[:resource]
-            mutation = MutationGenerator.create_mutation(
+            
+            create_mutation = MutationGenerator.create_mutation(
               name: query_field,
               type: generator[resource.type],
               resource: resource
             )
-            field "create_#{query_field}".to_sym, mutation: mutation
+            field "create_#{query_field}".to_sym, mutation: create_mutation
+
+            update_mutation = MutationGenerator.update_mutation(
+              name: query_field,
+              type: generator[resource.type],
+              resource: resource
+            )
+            field "update_#{query_field}".to_sym, mutation: update_mutation
+
+            destroy_mutation = MutationGenerator.destroy_mutation(
+              name: query_field,
+              type: generator[resource.type],
+              resource: resource
+            )
+            field "destroy_#{query_field}".to_sym, mutation: destroy_mutation
           end
         end
       end

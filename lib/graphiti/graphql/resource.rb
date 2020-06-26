@@ -19,6 +19,10 @@ module Graphiti
         def graphql_schema
           return @graphql_schema if @graphql_schema
 
+          Dir['app/resources/**/*.rb'].each do |file|
+            require_dependency file
+          end
+
           resources = self.descendants.select { |resource| resource.try(:graphql_entry?) }
 
           @graphql_schema = Graphiti::GraphQL::SchemaBuilder.build do
