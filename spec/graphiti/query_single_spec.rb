@@ -247,4 +247,62 @@ RSpec.describe Graphiti::GraphQL do
       }
     )
   end
+
+  it "returns nice error for unknown field" do
+    employee = Employee.create!(first_name: "Joe", last_name: "Smith")
+
+    query = <<~QUERY
+      query {
+        employee(id: #{employee.id}) {
+          widget
+        }
+      }
+    QUERY
+    expect(query).to respond_with_errors(
+      [
+        {
+          "message" => "Field 'widget' doesn't exist on type 'Employee'",
+          "locations" => [
+            { "line" => 3, "column" => 5 }
+          ],
+          "path" => ["query", "employee", "widget"],
+          "extensions" => {
+            "code" => "undefinedField",
+            "typeName" => "Employee",
+            "fieldName" => "widget"
+          }
+        }
+      ]
+    )
+  end
+
+  it "returns nice error for unknown relationship" do
+    employee = Employee.create!(first_name: "Joe", last_name: "Smith")
+
+    query = <<~QUERY
+      query {
+        employee(id: #{employee.id}) {
+          widget {
+            name
+          }
+        }
+      }
+    QUERY
+    expect(query).to respond_with_errors(
+      [
+        {
+          "message" => "Field 'widget' doesn't exist on type 'Employee'",
+          "locations" => [
+            { "line" => 3, "column" => 5 }
+          ],
+          "path" => ["query", "employee", "widget"],
+          "extensions" => {
+            "code" => "undefinedField",
+            "typeName" => "Employee",
+            "fieldName" => "widget"
+          }
+        }
+      ]
+    )
+  end
 end

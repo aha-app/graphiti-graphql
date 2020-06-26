@@ -15,3 +15,21 @@ RSpec::Matchers.define :respond_with do |hash|
     end
   end
 end
+
+RSpec::Matchers.define :respond_with_errors do |hash|
+  description { "respond with errors matching #{hash}" }
+
+  match do |query|
+    result = ApplicationResource.graphql_schema.execute(query)
+    result.to_h["errors"] == hash
+  end
+
+  failure_message do |query|
+    result = ApplicationResource.graphql_schema.execute(query).to_h
+    if result["data"]
+      "Expected query to respond with errors matching #{hash} but it returned data #{result["data"]}"
+    else
+      "Expected query to respond with errors matching #{hash} but it returned #{result["errors"]}"
+    end
+  end
+end
