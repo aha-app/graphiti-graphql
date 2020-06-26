@@ -112,7 +112,7 @@ module Graphiti
                   end
                 end
               else
-                this.type_for_resource(sideload.parent_resource_class)
+                this.type_for_resource(sideload.resource_class)
               end
             else
               this.type_for_resource(sideload.resource_class)

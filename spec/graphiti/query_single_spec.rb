@@ -70,7 +70,7 @@ RSpec.describe Graphiti::GraphQL do
       }
     QUERY
     expect(query).to respond_with(
-      "employees" => {
+      "employee" => {
         "firstName" => "Joe",
         "lastName" => "Smith",
         "tasks" => [

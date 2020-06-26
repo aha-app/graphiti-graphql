@@ -197,7 +197,7 @@ end
 class TaskResource < ApplicationResource
   self.polymorphic = %w[BugResource FeatureResource]
   attribute :name, :string
-  attribute :employee_id, :string, only: [:writable]
+  attribute :employee_id, :string, only: [:writable, :filterable]
 end
 
 class BugResource < TaskResource
