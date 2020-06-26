@@ -40,4 +40,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "byebug"
   spec.add_development_dependency "kaminari"
   spec.add_development_dependency "database_cleaner-active_record"
+  spec.add_development_dependency "simplecov"
 end
