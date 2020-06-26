@@ -25,7 +25,7 @@ module Graphiti
           attribute :id, :integer_id, readable: false
 
           def self.name
-            'Graphiti::Graphql::QueryResource'
+            'Graphiti::GraphQL::QueryResource'
           end
 
           def base_scope
@@ -45,9 +45,9 @@ module Graphiti
         }
 
         sideload_klass = if singular
-          Graphiti::Graphql::Sideload::SingleEntrypoint
+          Graphiti::GraphQL::Sideload::SingleEntrypoint
         else
-          Graphiti::Graphql::Sideload::ListEntrypoint
+          Graphiti::GraphQL::Sideload::ListEntrypoint
         end
 
         @query_resource.instance_eval do
@@ -65,7 +65,7 @@ module Graphiti
         root_query = query_type
         root_mutation = mutation_type
 
-        Class.new(GraphQL::Schema) do
+        Class.new(::GraphQL::Schema) do
           query(root_query)
           mutation(root_mutation)
 
@@ -102,7 +102,7 @@ module Graphiti
             type_info = generator[resource.type]
 
             if singular
-              resolver = Class.new(GraphQL::Schema::Resolver) do
+              resolver = Class.new(::GraphQL::Schema::Resolver) do
                 def resolve(id:)
                   resource = "#{field.name.singularize.classify}Resource".safe_constantize
                   resource.find(id: id).data
@@ -110,7 +110,7 @@ module Graphiti
               end
 
               field query_field, type_info, null: false, resolver: resolver do
-                argument :id, GraphQL::Types::ID, required: true
+                argument :id, ::GraphQL::Types::ID, required: true
               end
             else
               filter_map = {}
@@ -122,7 +122,7 @@ module Graphiti
                 end
               end
 
-              resolver = Class.new(GraphQL::Schema::Resolver) do
+              resolver = Class.new(::GraphQL::Schema::Resolver) do
                 cattr_accessor :filter_map
 
                 def resolve(**args)

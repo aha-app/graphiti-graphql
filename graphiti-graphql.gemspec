@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  spec.add_dependency "activesupport", ">= 4.1"
   spec.add_dependency "graphiti", "~> 1.2.17"
   spec.add_dependency "graphiti-rails", "~> 0.2.3"
   spec.add_dependency "graphql", "~> 1.11.1"
@@ -33,4 +34,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "activerecord"
+  spec.add_development_dependency "sqlite3"
+  spec.add_development_dependency "graphiti_spec_helpers"
+  spec.add_development_dependency "byebug"
+  spec.add_development_dependency "kaminari"
 end

@@ -1,4 +1,4 @@
-module Graphiti::Graphql::BatchLoader
+module Graphiti::GraphQL::BatchLoader
   class PolymorphicSingleItemLoader < BaseLoader
     def assign(parent_records, records)
       map = records.reduce({}) do |acc, (polymorphic_type, records)|

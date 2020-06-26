@@ -25,7 +25,7 @@ Or install it yourself as:
 ```ruby
 # app/resources/application_resource.rb
 class ApplicationResource < Graphiti::Resource
-  include Graphiti::Graphql::Resource
+  include Graphiti::GraphQL::Resource
 
   # ...
 end
@@ -56,7 +56,8 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/aha-ap
 
 ## Credits
 
-The code for this gem was originally based on [wade-tandy/graphiti-graphql](https://github.com/wadetandy/graphiti-graphql).
+* The code for this gem was originally based on [wade-tandy/graphiti-graphql](https://github.com/wadetandy/graphiti-graphql).
+* Some testing patterns and fixtures were borroed from Graphiti itself.
 
 ## License
 

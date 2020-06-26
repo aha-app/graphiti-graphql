@@ -13,8 +13,8 @@ module Graphiti
 
       class << self
         def create_mutation(name:, type:, resource:)
-          mutation = Class.new(GraphQL::Schema::Mutation) do
-            include Graphiti::Graphql::MutationHelper
+          mutation = Class.new(::GraphQL::Schema::Mutation) do
+            include Graphiti::GraphQL::MutationHelper
 
             cattr_accessor :graphiti_resource
 
@@ -27,7 +27,7 @@ module Graphiti
             end
 
             field name, type, null: true
-            field :errors, GraphQL::Types::JSON, null: true
+            field :errors, ::GraphQL::Types::JSON, null: true
 
             def resolve(**args)
               model = build_model(args)

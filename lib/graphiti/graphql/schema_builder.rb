@@ -6,7 +6,7 @@ module Graphiti
       end
 
       def build(&block)
-        @schema = Graphiti::Graphql::Schema.new
+        @schema = Graphiti::GraphQL::Schema.new
         instance_eval(&block)
         @schema.tap do
           @schema = nil

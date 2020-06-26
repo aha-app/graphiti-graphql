@@ -1,4 +1,4 @@
-module Graphiti::Graphql::BatchLoader
+module Graphiti::GraphQL::BatchLoader
   class BaseLoader < ::GraphQL::Batch::Loader
     attr_reader :sideload, :params
     def initialize(sideload, context: {}, params: {}, single:)

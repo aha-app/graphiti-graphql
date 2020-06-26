@@ -1,7 +1,25 @@
-require "graphiti/graphql/version"
+require "active_support"
+require "active_support/core_ext"
 
-module Graphiti
-  module GraphQL
-    class Error < StandardError; end
-  end
-end
+require "graphiti"
+require "graphql"
+require "graphql/batch"
+
+require "graphiti/graphql/version"
+require "graphiti/graphql/errors"
+require "graphiti/graphql/mutation_generator"
+require "graphiti/graphql/mutation_helper"
+require "graphiti/graphql/resource"
+require "graphiti/graphql/schema"
+require "graphiti/graphql/schema_builder"
+require "graphiti/graphql/type_generator"
+
+require "graphiti/graphql/sideload/single_entrypoint"
+require "graphiti/graphql/sideload/list_entrypoint"
+
+require "graphiti/graphql/batch_loader/base_loader"
+require "graphiti/graphql/batch_loader/single_item_loader"
+require "graphiti/graphql/batch_loader/polymorphic_single_item_loader"
+require "graphiti/graphql/batch_loader/multi_item_loader"
+require "graphiti/graphql/batch_loader/entrypoint_loader"
+require "graphiti/graphql/batch_loader/single_entrypoint_loader"

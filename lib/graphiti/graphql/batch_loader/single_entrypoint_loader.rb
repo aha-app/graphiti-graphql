@@ -1,4 +1,4 @@
-module Graphiti::Graphql::BatchLoader
+module Graphiti::GraphQL::BatchLoader
   class SingleEntrypointLoader < BaseLoader
     def perform(_)
       super([OpenStruct.new])

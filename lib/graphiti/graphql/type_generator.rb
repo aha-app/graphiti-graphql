@@ -31,7 +31,7 @@ module Graphiti
           type_resources.push(resource_class)
         end
 
-        object_type = @type_map[type_name] ||= Class.new(GraphQL::Schema::Object) do
+        object_type = @type_map[type_name] ||= Class.new(::GraphQL::Schema::Object) do
           cattr_accessor :graphiti_resource
 
           graphql_name type_name.singularize.camelize
@@ -99,9 +99,9 @@ module Graphiti
         proc do
           sideload_type = 
             if sideload.polymorphic_parent?
-              if sideload.children
+              if sideload.try(:children)
                 types = sideload.children.values.map(&:resource_class).map { |resource| this.type_for_resource(resource) }
-                Class.new(GraphQL::Schema::Union) do
+                Class.new(::GraphQL::Schema::Union) do
                   graphql_name sideload.name.to_s.classify
                   possible_types *types
 
@@ -130,7 +130,7 @@ module Graphiti
             end
           end
 
-          resolver = Class.new(GraphQL::Schema::Resolver) do
+          resolver = Class.new(::GraphQL::Schema::Resolver) do
             cattr_accessor :loader, :sideload, :is_single, :is_entrypoint, :filter_map
 
             def resolve(**args)

@@ -1,4 +1,4 @@
-module Graphiti::Graphql::BatchLoader
+module Graphiti::GraphQL::BatchLoader
   class SingleItemLoader < BaseLoader
     def assign(parent_records, records)
       map = records.group_by(&sideload.foreign_key)

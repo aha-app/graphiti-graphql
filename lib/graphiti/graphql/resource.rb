@@ -21,7 +21,7 @@ module Graphiti
 
           resources = self.descendants.select { |resource| resource.try(:graphql_entry?) }
 
-          @graphql_schema = Graphiti::Graphql::SchemaBuilder.build do
+          @graphql_schema = Graphiti::GraphQL::SchemaBuilder.build do
             resources.each do |klass|
               resource klass.type
             end
