@@ -48,9 +48,11 @@ module Graphiti
         object_type.graphiti_resource = resource_class
 
         resource_class.sideloads.each_value do |sideload|
-          next if sideload.resource_class.type.blank?
-
-          add_resource(sideload.resource_class)
+          if sideload.resource_class.type.blank?
+            sideload.children.values.map(&:resource_class).each(&method(:add_resource))
+          else
+            add_resource(sideload.resource_class)
+          end
         end
 
         object_type
