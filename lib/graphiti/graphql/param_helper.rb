@@ -1,6 +1,6 @@
 module Graphiti
   module GraphQL
-    module MutationHelper
+    module ParamHelper
       def build_model(args)
         self.class.graphiti_resource.build(jsonapi_params(args))
       end

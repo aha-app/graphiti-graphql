@@ -126,13 +126,11 @@ module Graphiti
       def type_generator
         return @type_generator if @type_generator
 
-        @type_generator = TypeGenerator.new(self)
+        @type_generator = Generators::TypeGenerator.new(self)
         query_entrypoints.each_value do |details|
           @type_generator.add_resource(details[:resource])
         end
-        @type_generator.finalize
-
-        @type_generator
+        @type_generator.call
       end
 
       def query_type
@@ -218,14 +216,13 @@ module Graphiti
             resource = details[:resource]
 
             meta = {
+              schema: schema,
               name: name,
               type: generator[resource.type],
               resource: resource
             }
-
-            field "create_#{name}".to_sym, mutation: MutationGenerator.create_mutation(schema: schema, **meta)
-            field "update_#{name}".to_sym, mutation: MutationGenerator.update_mutation(schema: schema, **meta)
-            field "destroy_#{name}".to_sym, mutation: MutationGenerator.destroy_mutation(schema: schema, **meta)
+            mutations = Generators::MutationGenerator.new(name, meta).call
+            instance_eval(&mutations)
           end
         end
       end
