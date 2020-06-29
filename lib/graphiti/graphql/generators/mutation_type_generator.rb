@@ -1,25 +1,34 @@
 module Graphiti::GraphQL::Generators
-  class MutationGenerator
-    def initialize(name, meta)
-      @name = name
-      @meta = meta
+  class MutationTypeGenerator
+    def initialize(schema)
+      @schema = schema
     end
 
     def call
-      mutations = {
-        "create_#{@name}".to_sym => create_mutation(@meta),
-        "update_#{@name}".to_sym => update_mutation(@meta),
-        "destroy_#{@name}".to_sym => destroy_mutation(@meta)
-      }
+      schema = @schema
+      generator = self
 
-      proc do
-        mutations.each_pair do |mutation_name, mutation|
-          field mutation_name, mutation: mutation
+      @mutation_type ||= Class.new(::GraphQL::Schema::Object) do
+        graphql_name "Mutation"
+
+        schema.query_entrypoints.each_pair do |name, details|
+          next unless details[:singular]
+
+          resource = details[:resource]
+
+          meta = {
+            schema: schema,
+            name: name,
+            type: schema.type_generator[resource.type],
+            resource: resource
+          }
+          
+          field "create_#{name}", mutation: generator.create_mutation(**meta)
+          field "update_#{name}", mutation: generator.update_mutation(**meta)
+          field "destroy_#{name}", mutation: generator.destroy_mutation(**meta)
         end
       end
     end
-
-    private
 
     def create_mutation(**meta)
       build_mutation(action: "create", **meta) do |**args|

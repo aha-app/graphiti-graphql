@@ -2,10 +2,12 @@ module Graphiti::GraphQL::Generators
   class TypeGenerator
     attr_reader :schema
 
+    delegate :field_type, to: :schema
+
     def initialize(schema)
+      @schema = schema
       @type_map = {}
       @resource_map = {}
-      @schema = schema
     end
 
     def add_resource(resource_class)
@@ -26,7 +28,7 @@ module Graphiti::GraphQL::Generators
           %w[a e i o u].include?(type_name.downcase[0]) ? "An #{type_name.singularize}" : "A #{type_name.singularize}"
         end
 
-      this = self
+      schema = @schema
 
       object_type = @type_map[type_name] ||= Class.new(::GraphQL::Schema::Object) do
         cattr_accessor :graphiti_resource
@@ -37,7 +39,7 @@ module Graphiti::GraphQL::Generators
 
         resource_class.all_attributes.each_pair do |att, details|
           if details[:readable]
-            field att, this.field_type(type_name, att, details), null: true, description: details[:description]
+            field att, schema.field_type(type_name, att, details), null: true, description: details[:description]
           end
         end
       end
@@ -54,22 +56,20 @@ module Graphiti::GraphQL::Generators
       object_type
     end
 
-    def call
-      this = self
+    def add_sideloads
+      generator = self
 
       @type_map.each_pair do |type_name, type_klass|
         resource = "#{type_name.singularize.classify}Resource".safe_constantize
 
         type_klass.class_eval do
           resource.sideloads.each_pair do |sideload_name, sideload|
-            sideload_proc = SideloadFieldGenerator.new(sideload, this).call
+            sideload_proc = SideloadFieldGenerator.new(sideload, generator).call
 
             instance_eval(&sideload_proc)
           end
         end
       end
-
-      this
     end
 
     def type_for_resource(resource_class)
@@ -79,7 +79,5 @@ module Graphiti::GraphQL::Generators
     def [](type)
       @type_map[type.to_s]
     end
-
-    delegate :field_type, to: :schema
   end
 end

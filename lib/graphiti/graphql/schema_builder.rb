@@ -2,11 +2,11 @@ module Graphiti
   module GraphQL
     class SchemaBuilder
       def self.build(&block)
-        new.build(&block).generate_schema
+        new.build(&block).call
       end
 
       def build(&block)
-        @schema = Graphiti::GraphQL::Schema.new
+        @schema = Generators::SchemaGenerator.new
         instance_eval(&block)
         @schema.tap do
           @schema = nil
