@@ -1,20 +1,36 @@
 module Graphiti
   module GraphQL
     class Schema
-      GRAPHQL_SCALAR_TYPE_MAP = {
+      BASIC_TYPE_MAP = {
         string: ::GraphQL::Types::String,
         integer_id: ::GraphQL::Types::ID,
+        uuid: ::GraphQL::Types::ID,
         integer: ::GraphQL::Types::Int,
         float: ::GraphQL::Types::Float,
-        boolean: ::GraphQL::Types::Boolean,
+        big_decimal: ::GraphQL::Types::Float,
         date: ::GraphQL::Types::ISO8601Date,
         datetime: ::GraphQL::Types::ISO8601DateTime,
-      }.freeze
+        string_enum: ::GraphQL::Types::String,
+        integer_enum: ::GraphQL::Types::Int,
+        boolean: ::GraphQL::Types::Boolean,
+        hash: ::GraphQL::Types::JSON,
+        array: ::GraphQL::Types::JSON,
+      }
+
+      # All types except boolean/hash/array also have an
+      # array doppelgänger.
+      GRAPHQL_SCALAR_TYPE_MAP = BASIC_TYPE_MAP.keys.reduce(BASIC_TYPE_MAP) do |map, key|
+        next map if %i[boolean hash array].include?(key)
+
+        map["array_of_#{key}".to_sym] = [map[:key]]
+        map
+      end
 
       attr_reader :query_entrypoints
 
       def initialize
         @query_entrypoints = {}
+        @field_types = {}
 
         # Anonymous resource class where every supported query is a sideload
         @query_resource = Class.new(Graphiti::Resource) do
@@ -75,10 +91,34 @@ module Graphiti
         end
       end
 
-      class << self
-        def scalar_type(type)
-          GRAPHQL_SCALAR_TYPE_MAP[type]
+      def field_type(object, field, details)
+        if %i[string_enum integer_enum array_of_string_enum array_of_integer_enum].include?(details[:type])
+          # Normalize the object and field names.
+          object = object.to_s.singularize.to_sym
+          field = field.to_sym
+
+          @field_types[object] ||= {}
+
+          enum_type = @field_types[object][field] ||= Class.new(::GraphQL::Schema::Enum) do
+            graphql_name "#{object.to_s.singularize.camelize} #{field}"
+
+            details[:allow].each do |allowed_value|
+              value allowed_value, value: allowed_value
+            end
+          end
+
+          if details[:type].to_s.starts_with?("array_of")
+            [enum_type]
+          else
+            enum_type
+          end
+        else
+          GRAPHQL_SCALAR_TYPE_MAP[details[:type]]
         end
+      end
+
+      def argument_type(type)
+        GRAPHQL_SCALAR_TYPE_MAP[type]
       end
 
       private
@@ -86,7 +126,7 @@ module Graphiti
       def type_generator
         return @type_generator if @type_generator
 
-        @type_generator = TypeGenerator.new
+        @type_generator = TypeGenerator.new(self)
         query_entrypoints.each_value do |details|
           @type_generator.add_resource(details[:resource])
         end
@@ -98,6 +138,7 @@ module Graphiti
       def query_type
         queries = query_entrypoints
         generator = type_generator
+        this = self
 
         @query_type ||= Class.new(::GraphQL::Schema::Object) do
           graphql_name "Query"
@@ -154,7 +195,7 @@ module Graphiti
                 resource.filters.each_pair do |att, filter_details|
                   filter_details[:operators].each do |operator|
                     filter_name = "#{att}_#{operator.first}".to_sym
-                    argument filter_name, Schema.scalar_type(filter_details[:type]), required: false
+                    argument filter_name, this.argument_type(filter_details[:type]), required: false
                   end
                 end
               end
@@ -166,6 +207,7 @@ module Graphiti
       def mutation_type
         queries = query_entrypoints
         generator = type_generator
+        schema = self
 
         @mutation_type ||= Class.new(::GraphQL::Schema::Object) do
           graphql_name "Mutation"
@@ -181,9 +223,9 @@ module Graphiti
               resource: resource
             }
 
-            field "create_#{name}".to_sym, mutation: MutationGenerator.create_mutation(**meta)
-            field "update_#{name}".to_sym, mutation: MutationGenerator.update_mutation(**meta)
-            field "destroy_#{name}".to_sym, mutation: MutationGenerator.destroy_mutation(**meta)
+            field "create_#{name}".to_sym, mutation: MutationGenerator.create_mutation(schema: schema, **meta)
+            field "update_#{name}".to_sym, mutation: MutationGenerator.update_mutation(schema: schema, **meta)
+            field "destroy_#{name}".to_sym, mutation: MutationGenerator.destroy_mutation(schema: schema, **meta)
           end
         end
       end

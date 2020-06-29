@@ -1,10 +1,15 @@
 module Graphiti
   module GraphQL
     class TypeGenerator
-      def initialize
+      attr_reader :schema
+
+      def initialize(schema)
         @type_map = {}
         @resource_map = {}
+        @schema = schema
       end
+
+      delegate :field_type, to: :schema
 
       def [](type)
         @type_map[type.to_s]
@@ -28,6 +33,8 @@ module Graphiti
             %w[a e i o u].include?(type_name.downcase[0]) ? "An #{type_name.singularize}" : "A #{type_name.singularize}"
           end
 
+        this = self
+
         object_type = @type_map[type_name] ||= Class.new(::GraphQL::Schema::Object) do
           cattr_accessor :graphiti_resource
 
@@ -37,8 +44,7 @@ module Graphiti
 
           resource_class.all_attributes.each_pair do |att, details|
             if details[:readable]
-              # TODO: null
-              field att, Schema.scalar_type(details[:type]), null: false, description: details[:description]
+              field att, this.field_type(type_name, att, details), null: true, description: details[:description]
             end
           end
         end
@@ -155,8 +161,7 @@ module Graphiti
           resolver.is_entrypoint = is_entrypoint
           resolver.filter_map = filter_map
 
-          # TODO: null keyword
-          field sideload.name, type_name, null: false, resolver: resolver, description: sideload.description do
+          field sideload.name, type_name, null: true, resolver: resolver, description: sideload.description do
 
             if is_single
               argument :id, GraphQL::Types::ID if is_entrypoint
@@ -164,12 +169,11 @@ module Graphiti
               sideload.resource.filters.each_pair do |att, details|
                 next if att == sideload.primary_key || att == sideload.foreign_key
 
-                # TODO: handle :hash
-                next unless Schema.scalar_type(details[:type])
+                filter_type = this.field_type(sideload.parent_resource_class.name, att, details)
 
                 details[:operators].each do |operator|
                   filter_name = "#{att}_#{operator.first}".to_sym
-                  argument filter_name, Schema.scalar_type(details[:type]), required: false
+                  argument filter_name, filter_type, required: false
                 end
               end
             end

@@ -42,6 +42,8 @@ ActiveRecord::Schema.define(version: 1) do
     t.string :nickname
     t.string :salutation
     t.string :professional_titles
+    t.integer :group
+    t.integer :headcount
   end
 
   create_table :positions do |t|
@@ -141,6 +143,13 @@ class Employee < ApplicationRecord
 
   has_one :salary
 
+  enum group: [:engineering, :marketing, :sales]
+  enum headcount: {
+    0 => 0,
+    100 => 100,
+    1000 => 1000
+  }
+
   before_destroy do
     add_validation_error if force_validation_error
 
@@ -232,6 +241,8 @@ class EmployeeResource < ApplicationResource
   attribute :first_name, :string, description: "The employee's first name"
   attribute :last_name, :string, description: "The employee's last name"
   attribute :age, :integer
+  attribute :group, :string_enum, allow: Employee.groups.keys
+  attribute :headcount, :integer_enum, allow: Employee.headcounts.keys
 
   extra_attribute :nickname, :string
   extra_attribute :salutation, :string

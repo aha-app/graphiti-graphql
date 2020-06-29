@@ -41,7 +41,7 @@ module Graphiti
 
         private
 
-        def build_mutation(name:, type:, resource:, action:, &block)
+        def build_mutation(schema:, name:, type:, resource:, action:, &block)
           mutation = Class.new(::GraphQL::Schema::Mutation) do
             include Graphiti::GraphQL::MutationHelper
 
@@ -57,7 +57,7 @@ module Graphiti
               resource.all_attributes.each_pair do |att, details|
                 next if %i[id created_at updated_at].include?(att)
 
-                argument att, Schema.scalar_type(details[:type]), required: false
+                argument att, schema.field_type(name, att, details), required: false
               end
             end
 
