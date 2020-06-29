@@ -20,17 +20,25 @@ module Graphiti
           type_resources.push(resource_class)
         end
 
+        resource_description =
+          if resource_class.description
+            resource_class.description
+          else
+            # Default to the name of the resource.
+            %w[a e i o u].include?(type_name.downcase[0]) ? "An #{type_name.singularize}" : "A #{type_name.singularize}"
+          end
+
         object_type = @type_map[type_name] ||= Class.new(::GraphQL::Schema::Object) do
           cattr_accessor :graphiti_resource
 
           graphql_name type_name.singularize.camelize
 
-          description "A #{type_name.singularize}"
+          description resource_description
 
           resource_class.all_attributes.each_pair do |att, details|
             if details[:readable]
               # TODO: null
-              field att, Schema.scalar_type(details[:type]), null: false
+              field att, Schema.scalar_type(details[:type]), null: false, description: details[:description]
             end
           end
         end
@@ -148,7 +156,7 @@ module Graphiti
           resolver.filter_map = filter_map
 
           # TODO: null keyword
-          field sideload.name, type_name, null: false, resolver: resolver do
+          field sideload.name, type_name, null: false, resolver: resolver, description: sideload.description do
 
             if is_single
               argument :id, GraphQL::Types::ID if is_entrypoint
