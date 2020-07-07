@@ -52,32 +52,12 @@ module Graphiti::GraphQL::Generators
           end
         type_name = is_single ? sideload_type : [sideload_type]
 
-        filter_map = {}
-
-        sideload.resource.filters.each_pair do |att, details|
-          next if att == sideload.primary_key || att == sideload.foreign_key
-
-          details[:operators].each do |operator|
-            filter_name = "#{att}_#{operator.first}"
-            filter_map[filter_name.to_sym] = [att, operator.first]
-          end
-        end
-
         resolver = Class.new(::GraphQL::Schema::Resolver) do
-          cattr_accessor :loader, :sideload, :is_single, :is_entrypoint, :filter_map
+          cattr_accessor :loader, :sideload, :is_single, :is_entrypoint
 
           def resolve(**args)
             params = {}
-
-            args.each_key do |arg|
-              val = args[arg]
-              params[:filter] ||= {}
-
-              filter, operator = filter_map[arg]
-
-              params[:filter][filter] ||= {}
-              params[:filter][filter][operator] = val
-            end
+            params[:filter] = args[:filter].to_h if args[:filter]
 
             loader.for(sideload, params: params, single: is_single).load(is_entrypoint ? :entry : object)
           end
@@ -87,23 +67,14 @@ module Graphiti::GraphQL::Generators
         resolver.sideload = sideload
         resolver.is_single = is_single
         resolver.is_entrypoint = is_entrypoint
-        resolver.filter_map = filter_map
 
         field sideload.name, type_name, null: true, resolver: resolver, description: sideload.description do
 
           if is_single
             argument :id, GraphQL::Types::ID if is_entrypoint
           else
-            sideload.resource.filters.each_pair do |att, details|
-              next if att == sideload.primary_key || att == sideload.foreign_key
-
-              filter_type = type_generator.field_type(sideload.parent_resource_class.name, att, details)
-
-              details[:operators].each do |operator|
-                filter_name = "#{att}_#{operator.first}".to_sym
-                argument filter_name, filter_type, required: false
-              end
-            end
+            filters = FilterGenerator.new(type_generator, sideload.resource, [sideload.primary_key, sideload.foreign_key]).call
+            instance_eval(&filters)
           end
         end
       end

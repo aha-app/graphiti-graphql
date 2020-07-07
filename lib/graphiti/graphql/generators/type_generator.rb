@@ -8,6 +8,7 @@ module Graphiti::GraphQL::Generators
       @schema = schema
       @type_map = {}
       @resource_map = {}
+      @type_filter_map = {}
     end
 
     def add_resource(resource_class)
@@ -68,6 +69,29 @@ module Graphiti::GraphQL::Generators
 
             instance_eval(&sideload_proc)
           end
+        end
+      end
+    end
+
+    def add_resource_filter(resource, skip_attrs)
+      resource_name = resource.type.to_s.classify
+      type_generator = self
+
+      @type_filter_map["#{resource_name}FilterInput"] ||= Class.new(::GraphQL::Schema::InputObject) do
+        graphql_name "#{resource_name}FilterInput"
+
+        resource.filters.each_pair do |attribute, filter_details|
+          next if skip_attrs.include?(attribute)
+
+          filter_attr_type = Class.new(::GraphQL::Schema::InputObject) do
+            graphql_name "#{resource_name}Filter#{attribute.to_s.classify}Input"
+
+            filter_details[:operators].each do |operator|
+              argument operator.first, type_generator.field_type(filter_details[:type], attribute, filter_details), required: false
+            end
+          end
+
+          argument attribute, filter_attr_type, required: false
         end
       end
     end

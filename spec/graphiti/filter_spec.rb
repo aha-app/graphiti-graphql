@@ -6,7 +6,7 @@ RSpec.describe Graphiti::GraphQL do
 
     query = <<~QUERY
       query {
-        employees(firstNameEq: "Joe") {
+        employees(filter: { firstName: { eq: "Joe" } }) {
           firstName
           lastName
         }
@@ -32,7 +32,7 @@ RSpec.describe Graphiti::GraphQL do
         employees {
           firstName
           lastName
-          positions(titleEq: "Assistant to Regional Manager") {
+          positions(filter: { title: { eq: "Assistant to Regional Manager" } }) {
             title
           }
         }
