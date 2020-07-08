@@ -82,6 +82,7 @@ module Graphiti::GraphQL::Generators
         if %w[create update].include?(action)
           resource.all_attributes.each_pair do |att, details|
             next if %i[id created_at updated_at].include?(att)
+            next unless details[:writable]
 
             argument att, schema.field_type(name, att, details), required: false
           end

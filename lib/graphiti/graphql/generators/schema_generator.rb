@@ -3,7 +3,6 @@ module Graphiti::GraphQL::Generators
     attr_reader :query_entrypoints, :field_types
 
     delegate :field_type, to: :field_types
-    delegate :argument_type, to: :field_types
 
     def initialize
       @query_entrypoints = {}
