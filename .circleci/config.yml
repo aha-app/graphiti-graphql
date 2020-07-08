@@ -6,6 +6,7 @@ jobs:
       - image: circleci/ruby:2.5
         environment:
           GEM_HOME: ~/graphiti-graphql/vendor/bundle
+          BUNDLER_VERSION: 2.0.2
     steps:
       - checkout
       - restore_cache:
