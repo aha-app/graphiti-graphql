@@ -3,7 +3,7 @@ jobs:
   test:
     working_directory: ~/graphiti-graphql
     docker:
-      - image: circleci/ruby:2.5
+      - image: circleci/ruby:2.6
         environment:
           GEM_HOME: ~/graphiti-graphql/vendor/bundle
           BUNDLER_VERSION: 2.0.2
