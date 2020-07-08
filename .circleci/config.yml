@@ -1,0 +1,28 @@
+version: 2
+jobs:
+  test:
+    working_directory: ~/graphiti-graphql
+    docker:
+      - image: circleci/ruby:2.5
+        environment:
+          GEM_HOME: ~/graphiti-graphql/vendor/bundle
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "graphiti-graphql.gemspec" }}
+      - run:
+          name: bundle-install
+          command: bundle check || bundle install --jobs=4 --retry=3
+      - save_cache:
+          key: dependency-cache-{{ checksum "graphiti-graphql.gemspec" }}
+          paths:
+            - ./vendor/bundle
+      - run:
+          name: rspec
+          command: bundle exec rspec
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
