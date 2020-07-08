@@ -32,14 +32,23 @@ module Graphiti::GraphQL::Generators
                 params = {}
                 params[:filter] = args[:filter].to_h if args[:filter]
 
+                if args[:sort]
+                  sort_str = args[:sort].to_h.each_pair.reduce([]) do |sort, (field, dir)|
+                    sort + [dir == "DESC" ? "-#{field}" : field.to_s]
+                  end
+                  params[:sort] = sort_str.join(",")
+                end
+
                 resource = "#{field.name.singularize.classify}Resource".safe_constantize
                 resource.all(params).data
               end
             end
 
             filter_type = schema.type_generator.add_resource_filter(resource)
+            sort_type = schema.type_generator.add_resource_sort(resource)
             field query_field, [type_info], null: false, resolver: resolver do
               argument :filter, filter_type, required: false
+              argument :sort, sort_type, required: false
             end
           end
         end

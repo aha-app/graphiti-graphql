@@ -39,9 +39,9 @@ module Graphiti::GraphQL::Generators
         description resource_description
 
         resource_class.all_attributes.each_pair do |att, details|
-          if details[:readable]
-            field att, schema.field_type(type_name, att, details), null: true, description: details[:description]
-          end
+          next unless details[:readable]
+          
+          field att, schema.field_type(type_name, att, details), null: true, description: details[:description]
         end
       end
       object_type.graphiti_resource = resource_class
@@ -96,12 +96,38 @@ module Graphiti::GraphQL::Generators
       end
     end
 
+    def add_resource_sort(resource)
+      resource_name = resource.type.to_s.classify
+      sort_asc_desc = sort_enum
+
+      @type_filter_map["#{resource_name}OrderInput"] ||= Class.new(::GraphQL::Schema::InputObject) do
+        graphql_name "#{resource_name}OrderInput"
+
+        resource.all_attributes.each_pair do |att, details|
+          next unless details[:sortable]
+
+          argument att, sort_asc_desc, required: false
+        end
+      end
+    end
+
     def type_for_resource(resource_class)
       @type_map[resource_class.type.to_s]
     end
 
     def [](type)
       @type_map[type.to_s]
+    end
+
+    private
+
+    def sort_enum
+      @sort_enum ||= Class.new(::GraphQL::Schema::Enum) do
+        graphql_name "SortOrder"
+
+        value "ASC"
+        value "DESC"
+      end
     end
   end
 end

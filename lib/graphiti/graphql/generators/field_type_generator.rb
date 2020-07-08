@@ -38,7 +38,7 @@ module Graphiti::GraphQL::Generators
         @field_types[object] ||= {}
 
         enum_type = @field_types[object][field] ||= Class.new(::GraphQL::Schema::Enum) do
-          graphql_name "#{object.to_s.singularize.camelize} #{field}"
+          graphql_name "#{object.to_s.singularize.classify}#{field.to_s.classify}"
 
           details[:allow].each do |allowed_value|
             value allowed_value, value: allowed_value

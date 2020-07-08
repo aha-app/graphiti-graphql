@@ -59,6 +59,16 @@ module Graphiti::GraphQL::Generators
             params = {}
             params[:filter] = args[:filter].to_h if args[:filter]
 
+            if args[:sort]
+              params[:sort] = args[:sort].to_h.each_pair.reduce("") do |sort, (field, dir)|
+                if dir == "ASC"
+                  sort + field.to_s
+                else
+                  sort + "-#{field}"
+                end
+              end
+            end
+
             loader.for(sideload, params: params, single: is_single).load(is_entrypoint ? :entry : object)
           end
         end
@@ -74,7 +84,9 @@ module Graphiti::GraphQL::Generators
             argument :id, GraphQL::Types::ID if is_entrypoint
           else
             filter_type = type_generator.add_resource_filter(sideload.resource, [sideload.primary_key, sideload.foreign_key])
+            sort_type = type_generator.add_resource_sort(sideload.resource)
             argument :filter, filter_type, required: false
+            argument :sort, sort_type, required: false
           end
         end
       end
