@@ -25,7 +25,7 @@ module Graphiti::GraphQL::Resource
 
       @graphql_schema = Graphiti::GraphQL::SchemaBuilder.build do
         resources.each do |klass|
-          resource klass.type
+          resource klass
         end
       end
     end
