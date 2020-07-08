@@ -9,7 +9,6 @@ module Graphiti::GraphQL::Generators
       big_decimal: ::GraphQL::Types::Float,
       date: ::GraphQL::Types::ISO8601Date,
       datetime: ::GraphQL::Types::ISO8601DateTime,
-      string_enum: ::GraphQL::Types::String,
       integer_enum: ::GraphQL::Types::Int,
       boolean: ::GraphQL::Types::Boolean,
       hash: ::GraphQL::Types::JSON,
@@ -30,7 +29,7 @@ module Graphiti::GraphQL::Generators
     end
 
     def field_type(object, field, details)
-      if details[:type].to_s.ends_with?("_enum")
+      if details[:type].to_s.ends_with?("string_enum")
         build_enum_type(object, field, details)
       else
         GRAPHQL_SCALAR_TYPE_MAP[details[:type]]
