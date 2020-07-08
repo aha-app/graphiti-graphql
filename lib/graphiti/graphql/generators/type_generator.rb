@@ -73,7 +73,7 @@ module Graphiti::GraphQL::Generators
       end
     end
 
-    def add_resource_filter(resource, skip_attrs)
+    def add_resource_filter(resource, skip_attrs = [])
       resource_name = resource.type.to_s.classify
       type_generator = self
 

@@ -37,10 +37,9 @@ module Graphiti::GraphQL::Generators
               end
             end
 
-            filters = FilterGenerator.new(schema.type_generator, resource).call
-
+            filter_type = schema.type_generator.add_resource_filter(resource)
             field query_field, [type_info], null: false, resolver: resolver do
-              instance_eval(&filters)
+              argument :filter, filter_type, required: false
             end
           end
         end

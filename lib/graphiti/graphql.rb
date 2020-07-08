@@ -23,7 +23,6 @@ require "graphiti/graphql/batch_loader/entrypoint_loader"
 require "graphiti/graphql/batch_loader/single_entrypoint_loader"
 
 require "graphiti/graphql/generators/field_type_generator"
-require "graphiti/graphql/generators/filter_generator"
 require "graphiti/graphql/generators/mutation_type_generator"
 require "graphiti/graphql/generators/query_type_generator"
 require "graphiti/graphql/generators/schema_generator"

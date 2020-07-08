@@ -73,8 +73,8 @@ module Graphiti::GraphQL::Generators
           if is_single
             argument :id, GraphQL::Types::ID if is_entrypoint
           else
-            filters = FilterGenerator.new(type_generator, sideload.resource, [sideload.primary_key, sideload.foreign_key]).call
-            instance_eval(&filters)
+            filter_type = type_generator.add_resource_filter(sideload.resource, [sideload.primary_key, sideload.foreign_key])
+            argument :filter, filter_type, required: false
           end
         end
       end
