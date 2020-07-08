@@ -7,6 +7,10 @@ module Graphiti::GraphQL::ParamHelper
     self.class.graphiti_resource.find(jsonapi_params(args))
   end
 
+  def error_hash(model)
+    model.errors.to_h.deep_transform_keys { |key| key.to_s.camelize(:lower) }
+  end
+
   def jsonapi_params(args)
     relationship_keys = self.class.graphiti_resource.sideloads.values.map(&:foreign_key)
     relationship_args = args.slice(*relationship_keys)

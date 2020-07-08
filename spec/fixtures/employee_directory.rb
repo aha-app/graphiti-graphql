@@ -133,7 +133,7 @@ class Employee < ApplicationRecord
   has_many :features
   has_many :notes, as: :notable
   has_one :location, as: :locatable
-  validates :first_name, presence: true
+  validates :first_name, :last_name, presence: true
   validates :delete_confirmation,
     presence: true,
     on: :destroy

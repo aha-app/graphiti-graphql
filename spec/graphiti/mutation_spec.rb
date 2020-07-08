@@ -21,6 +21,24 @@ RSpec.describe Graphiti::GraphQL do
     expect(Employee.find_by(first_name: "Jack", last_name: "Thompson")).to_not be_nil
   end
 
+  it "returns error for failed create validation" do
+    mutation = <<~MUTATION
+      mutation {
+        createEmployee(firstName: "Jack") {
+          errors
+        }
+      }
+    MUTATION
+    expect(mutation).to respond_with(
+      "createEmployee" => {
+        "errors" => {
+          "lastName" => "can't be blank"
+        }
+      }
+    )
+    expect(Employee.find_by(first_name: "Jack")).to be_nil
+  end
+
   it "updates an employee" do
     employee = Employee.create!(first_name: "Joe", last_name: "Smith")
 
@@ -45,6 +63,28 @@ RSpec.describe Graphiti::GraphQL do
     employee.reload
     expect(employee.first_name).to eq("Jack")
     expect(employee.last_name).to eq("Thompson")
+  end
+
+  it "returns error for failed update validation" do
+    employee = Employee.create!(first_name: "Joe", last_name: "Smith")
+
+    mutation = <<~MUTATION
+      mutation {
+        updateEmployee(id: #{employee.id}, lastName: "") {
+          errors
+        }
+      }
+    MUTATION
+    expect(mutation).to respond_with(
+      "updateEmployee" => {
+        "errors" => {
+          "lastName" => "can't be blank"
+        }
+      }
+    )
+    employee.reload
+    expect(employee.first_name).to eq("Joe")
+    expect(employee.last_name).to eq("Smith")
   end
 
   it "destroys an employee" do

@@ -37,7 +37,7 @@ module Graphiti::GraphQL::Generators
         if model.save
           { self.class.graphiti_resource.type.to_s.singularize => model.data }
         else
-          { errors: model.errors.to_h }
+          { errors: error_hash(model) }
         end
       end
     end
@@ -49,7 +49,7 @@ module Graphiti::GraphQL::Generators
         if model.update_attributes
           { self.class.graphiti_resource.type.to_s.singularize => model.data }
         else
-          { errors: model.errors.to_h }
+          { errors: error_hash(model) }
         end
       end
     end
@@ -62,7 +62,7 @@ module Graphiti::GraphQL::Generators
         if model.destroy
           { self.class.graphiti_resource.type.to_s.singularize => data }
         else
-          { errors: model.errors.to_h }
+          { errors: error_hash(model) }
         end
       end
     end
