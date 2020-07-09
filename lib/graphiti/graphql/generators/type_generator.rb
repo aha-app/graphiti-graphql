@@ -50,9 +50,17 @@ module Graphiti::GraphQL::Generators
       object_type.graphiti_resource = resource_class
 
       resource_class.sideloads.each_value do |sideload|
+        next unless resource_class.graphql_relationship?(sideload.name)
+
         if sideload.resource_class.type.blank?
-          sideload.children.values.map(&:resource_class).each(&method(:add_resource))
+          sideload.children.values.map(&:resource_class).each do |child_resource_class|
+            next unless child_resource_class.graphql_queryable?
+
+            add_resource(child_resource_class)
+          end
         else
+          next unless sideload.resource_class.graphql_queryable?
+
           add_resource(sideload.resource_class)
         end
       end
@@ -67,7 +75,9 @@ module Graphiti::GraphQL::Generators
         resource = "#{type_name.singularize.classify}Resource".safe_constantize
 
         type_klass.class_eval do
-          resource.sideloads.each_pair do |sideload_name, sideload|
+          resource.sideloads.each_value do |sideload|
+            next unless resource.graphql_relationship?(sideload.name)
+
             sideload_proc = SideloadFieldGenerator.new(sideload, generator).call
 
             instance_eval(&sideload_proc)

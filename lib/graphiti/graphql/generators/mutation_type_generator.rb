@@ -15,6 +15,7 @@ module Graphiti::GraphQL::Generators
           next unless details[:singular]
 
           resource = details[:resource]
+          next unless resource.graphql_mutatable?
 
           meta = {
             schema: schema,

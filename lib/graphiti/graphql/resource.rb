@@ -2,16 +2,39 @@ module Graphiti::GraphQL::Resource
   extend ActiveSupport::Concern
 
   included do
-    class_attribute :_graphql_entry
+    class_attribute :_graphql_schema
   end
 
   class_methods do
-    def graphql_entry(value = true)
-      self._graphql_entry = value
+    def graphql(available: true, entry: true, queryable: true, mutatable: true, relationships: true)
+      self._graphql_schema = {
+        entry: available && queryable && entry,
+        queryable: available && queryable,
+        mutatable: available && mutatable,
+        relationships: available && relationships
+      }
     end
 
     def graphql_entry?
-      self._graphql_entry
+      _graphql_schema && _graphql_schema[:entry]
+    end
+
+    def graphql_queryable?
+      _graphql_schema.nil? || _graphql_schema[:queryable]
+    end
+
+    def graphql_mutatable?
+      _graphql_schema.nil? || _graphql_schema[:mutatable]
+    end
+
+    def graphql_relationship?(field)
+      return true if _graphql_schema.nil?
+
+      if _graphql_schema[:relationships].is_a?(Array)
+        _graphql_schema[:relationships].include?(field)
+      else
+        _graphql_schema[:relationships]
+      end
     end
 
     def graphql_schema
@@ -21,7 +44,7 @@ module Graphiti::GraphQL::Resource
         require_dependency file
       end
 
-      resources = self.descendants.select { |resource| resource.try(:graphql_entry?) }
+      resources = descendants.select { |resource| resource.try(:graphql_entry?) }
 
       @graphql_schema = Graphiti::GraphQL::SchemaBuilder.build do
         resources.each do |klass|

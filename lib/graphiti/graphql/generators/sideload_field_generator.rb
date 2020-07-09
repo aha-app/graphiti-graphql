@@ -33,7 +33,7 @@ module Graphiti::GraphQL::Generators
         sideload_type = 
           if sideload.polymorphic_parent?
             if sideload.try(:children)
-              types = sideload.children.values.map(&:resource_class).map { |resource| type_generator.type_for_resource(resource) }
+              types = sideload.children.values.map(&:resource_class).select(&:graphql_queryable?).map { |resource| type_generator.type_for_resource(resource) }
               Class.new(::GraphQL::Schema::Union) do
                 graphql_name sideload.name.to_s.classify
                 possible_types *types
@@ -44,12 +44,14 @@ module Graphiti::GraphQL::Generators
                   end
                 end
               end
-            else
+            elsif sideload.resource_class.graphql_queryable?
               type_generator.type_for_resource(sideload.resource_class)
             end
-          else
+          elsif sideload.resource_class.graphql_queryable?
             type_generator.type_for_resource(sideload.resource_class)
           end
+        next if sideload_type.nil?
+
         type_name = is_single ? sideload_type : [sideload_type]
 
         resolver = Class.new(::GraphQL::Schema::Resolver) do

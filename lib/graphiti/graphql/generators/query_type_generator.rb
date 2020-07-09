@@ -12,6 +12,8 @@ module Graphiti::GraphQL::Generators
 
         schema.query_entrypoints.each_pair do |query_field, details|
           resource = details[:resource]
+          next unless resource.graphql_queryable?
+
           singular = details[:singular]
           type_info = schema.type_generator[resource.type]
 

@@ -236,7 +236,7 @@ end
 class EmployeeResource < ApplicationResource
   self.description = "A worker at the company"
 
-  graphql_entry
+  graphql
 
   attribute :first_name, :string, description: "The employee's first name"
   attribute :last_name, :string, description: "The employee's last name"
