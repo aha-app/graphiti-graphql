@@ -84,7 +84,10 @@ module Graphiti::GraphQL::Generators
             next if %i[id created_at updated_at].include?(att)
             next unless details[:writable]
 
-            argument att, schema.field_type(name, att, details), required: false
+            argument_type = schema.field_type(name, att, details)
+            next unless argument_type
+
+            argument att, argument_type, required: false
           end
         end
 

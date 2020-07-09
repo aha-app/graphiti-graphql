@@ -40,8 +40,11 @@ module Graphiti::GraphQL::Generators
 
         resource_class.all_attributes.each_pair do |att, details|
           next unless details[:readable]
+
+          field_type = schema.field_type(type_name, att, details)
+          next unless field_type
           
-          field att, schema.field_type(type_name, att, details), null: true, description: details[:description]
+          field att, field_type, null: true, description: details[:description]
         end
       end
       object_type.graphiti_resource = resource_class
@@ -87,7 +90,10 @@ module Graphiti::GraphQL::Generators
             graphql_name "#{resource_name}Filter#{attribute.to_s.classify}Input"
 
             filter_details[:operators].each do |operator|
-              argument operator.first, type_generator.field_type(filter_details[:type], attribute, filter_details), required: false
+              argument_type = type_generator.field_type(filter_details[:type], attribute, filter_details)
+              next unless argument_type
+
+              argument operator.first, argument_type, required: false
             end
           end
 

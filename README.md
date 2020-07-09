@@ -1,6 +1,23 @@
 # graphiti-graphql
 
-Automatically generate a GraphQL interface from your [Graphiti](https://www.graphiti.dev) resources. Supports queries (including polymorphic resources), filters, and CRUD mutations.
+Automatically generate a GraphQL schema from your [Graphiti](https://www.graphiti.dev) resources. Supports queries (including relationships/sideloads), filtering, sorting, and CRUD mutations.
+
+## Status
+
+This gem is in beta. It should generally work as advertised, but may not work as expected for particular use cases, especially with uncommon Graphiti configurations. You should carefully validate that it works with your particular use case.
+
+Currently provided:
+
+* Queryable schema for all of your Graphiti resources. Resources with the `graphql_entry` tag can be queried from the top level; other resources can be queried through sideloads/GraphQL object relationships (`belongs_to`, `has_many`, etc)
+* Filtering and sorting (via the `filter` or `sort` arguments on any list relation)
+* Create, update, and delete mutations for each resource
+
+Not supported (yet):
+
+* Only the built-in Graphiti attribute types are supported; fields with a custom type are omitted from the GraphQL schema
+* All fields are denoted as nullable in the GraphQL schema, even if in practice some fields are guaranteed to have a value
+* Similarly, no mutation arguments are required in the GraphQL schema, even if they are required by an underlying model validation
+* There is no way to prevent certain resources from being queryable in the schema, if they are accessible via relationship from a resource with `graphql_entry`
 
 ## Installation
 
