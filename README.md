@@ -124,7 +124,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/aha-ap
 ## Credits
 
 * The code for this gem was originally based on [wade-tandy/graphiti-graphql](https://github.com/wadetandy/graphiti-graphql).
-* Some testing patterns and fixtures were borroed from Graphiti itself.
+* Some testing patterns and fixtures were borrowed from Graphiti itself.
 
 ## License
 
