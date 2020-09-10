@@ -24,16 +24,12 @@ Not supported (yet):
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'graphiti-graphql'
+gem 'graphiti-graphql', git: 'https://github.com/aha-app/graphiti-graphql.git'
 ```
 
 And then execute:
 
     $ bundle
-
-Or install it yourself as:
-
-    $ gem install graphiti-graphql
 
 ## Usage
 
