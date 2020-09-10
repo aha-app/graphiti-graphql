@@ -29,7 +29,8 @@ module Graphiti::GraphQL::ParamHelper
 
     {
       data: {
-        type: self.class.graphiti_resource.type,
+        id: attrs[:id],
+        type: self.class.graphiti_resource.type.to_s,
         attributes: attrs,
         relationships: relationships
       }
