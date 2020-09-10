@@ -4,7 +4,7 @@ Automatically generate a GraphQL schema from your [Graphiti](https://www.graphit
 
 ## Status
 
-This gem is in beta. It should generally work as advertised, but may not work as expected for particular use cases, especially with uncommon Graphiti configurations. You should carefully validate that it works with your particular use case.
+This gem is in alpha/beta. It should generally work as advertised, but may not work as expected for particular use cases, especially with uncommon Graphiti configurations. You should carefully validate that it works with your particular use case.
 
 Currently provided:
 
@@ -17,6 +17,7 @@ Not supported (yet):
 * Only the built-in Graphiti attribute types are supported; fields with a custom type are omitted from the GraphQL schema
 * All fields are denoted as nullable in the GraphQL schema, even if in practice some fields are guaranteed to have a value
 * Similarly, no mutation arguments are required in the GraphQL schema, even if they are required by an underlying model validation
+* There isn't a (good) way to extend the generated GraphQL schema to add extra types or mutations.
 
 ## Installation
 
@@ -67,9 +68,10 @@ graphql(
   # values to `false`.
   available: true,
 
-  # Should the resource be queryable as a top-level entry in the GraphQL schema? If `false`, the resource may be queryable as
-  # a relationship from another entry resource, but will not be
-  # queryable on its own at the top level.
+  # Should the resource be queryable as a top-level entry in the GraphQL
+  # schema? If `false`, the resource may be queryable as a relationship
+  # from another entry resource, but will not be queryable on its own
+  # at the top level.
   entry: true,
 
   # Should the resource be queryable at all? If set to `false`, the
